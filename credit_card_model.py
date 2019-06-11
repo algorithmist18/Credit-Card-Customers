@@ -123,7 +123,7 @@ def correlate(df):
 	print(corr['risk'])
 	print('Maximum dependency = {:.2f}, Attribute : {}'.format(max, df.columns[idx]))
 
-def jobs_genders(df):
+def jobs_genders(data):
 
 	male = 0
 	female = 0
@@ -133,10 +133,10 @@ def jobs_genders(df):
 
 	for i in range(0, 1000):
 
-		male += df['male'][i] * df['Job'][i]
-		n_males += df['male'][i]
-		female += df['female'][i] * df['Job'][i]
-		n_females += df['female'][i]
+		male += data['male'][i] * data['Job'][i]
+		n_males += data['male'][i]
+		female += data['female'][i] * data['Job'][i]
+		n_females += data['female'][i]
 
 	#print('{} {}'.format(n_males, n_females))
 	l = {'male' : male/n_males, 'female' : female/n_females}
@@ -251,16 +251,26 @@ def correlation(df, y):
 
 #Taking the data set as input
 df = pd.read_csv('german_credit_classifier.csv', error_bad_lines = False)
-df.dropna(axis = 0, inplace = True)
 df.drop(['Unnamed: 0'], axis = 1, inplace = True)
+
+max, min = correlate_column_risk('Housing')
+print('\nPeople having {} housing had highest percentage of safe loans, while people having {} housing had lowest percentage of safe loans.'.format(max, min))
+max, min = correlate_column_risk('Purpose')
+print('\nPeople using loan for {} had highest percentage of safe loans, while people using the loan for {} had lowest percentage for safe loans.'.format(max, min))
+max, min = correlate_column_risk('Job')
+print('\nPeople having {} job(s) had lowest percentage of defaults while people having {} job(s) had the highest.'.format(max, min))
 
 y = df['Risk']
 df.drop(['Risk'], axis = 1, inplace = True)
 
+print('\nCorrelation of different variables with Risk:\n')
 correlation(df, y)
+print()
+#Predictive modeling 
+
 #Changing text data into numbers: assigning higher values to more rise
 data = categorize(df)
-print(data.head())
+
 #Job statistics of genders
 
 jobs_genders(data)
@@ -269,20 +279,12 @@ duration_genders(data)
 data = normalize(data)
 data = drop_redundancy(data)
 
-
-max, min = correlate_column_risk('Housing')
-print('\nPeople having {} housing had highest percentage of safe loans, while people having {} housing had lowest percentage of safe loans.'.format(max, min))
-max, min = correlate_column_risk('Purpose')
-print('\nPeople using loan for {} had highest percentage of safe loans, while people using the loan for {} had lowest percentage for safe loans.'.format(max, min))
-max, min = correlate_column_risk('Job')
-print('\nPeople having {} job(s) had lowest percentage of defaults while people having {} job(s) had the highest.'.format(max, min))
-numerical_correlation_risk(df)
-
-#Predictive modeling 
-
 X = data.iloc[:,:]
 y = y.map({'good' : 1, 'bad' : 0})
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+print('\nApplying Logistic Regression to data:\n')
 classifier = LogisticRegression()
 classifier.fit(X_train, y_train)
 predictions = classifier.predict(X_test)
