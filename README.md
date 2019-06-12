@@ -17,4 +17,5 @@ Accuracy score = 74.00%
 
 
 ![](Housing_Risk.png)
-![](Loans_Gender.png)
+![](Job_Risk.png)
+![](Loan_Gender.png)
